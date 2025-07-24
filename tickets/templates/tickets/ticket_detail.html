@@ -1,0 +1,79 @@
+{% extends 'core/base.html' %}
+{% block title %}Dettaglio Ticket | Portale Manutenzione HH{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sezione principale -->
+    <div class="col-md-8">
+      <div class="dashboard-card p-4">
+        <h2 class="dashboard-title mb-3">{{ ticket.title }}</h2>
+        <p><strong>Resort:</strong> {{ ticket.resort.name }}</p>
+        <p><strong>Stato:</strong> {{ ticket.get_status_display }}</p>
+        <p><strong>Descrizione:</strong> {{ ticket.description }}</p>
+        {% if ticket.image %}
+        <div class="mb-3">
+          <strong>Immagine allegata:</strong><br>
+          <img src="{{ ticket.image.url }}" alt="Allegato" class="img-fluid rounded" style="max-width:350px;">
+        </div>
+        {% endif %}
+        <p><strong>Creato da:</strong> {{ ticket.created_by.username }}</p>
+        <p><strong>Assegnato a:</strong> {{ ticket.assigned_to.username|default:"-" }}</p>
+        <p><strong>Creato il:</strong> {{ ticket.created_at|date:"d/m/Y H:i" }}</p>
+
+        <hr>
+
+        {% if can_edit %}
+        <h4>Aggiorna stato e aggiungi nota</h4>
+        <form method="post" class="mb-4">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Stato</label>
+              {{ update_form.status }}
+            </div>
+            <div class="col-md-8">
+              {{ comment_form.comment }}
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success mt-2">Salva</button>
+        </form>
+        {% endif %}
+
+        <h5 class="mt-4">Note / Commenti</h5>
+        {% if comments %}
+          <ul class="timeline list-unstyled">
+            {% for c in comments %}
+              <li class="mb-3">
+                <div class="small text-muted">{{ c.author.username }} – {{ c.created_at|date:"d/m/Y H:i" }}</div>
+                <div class="bg-light p-2 rounded">{{ c.comment }}</div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted">Nessun commento.</p>
+        {% endif %}
+
+        <a href="{% if request.user.role == 'maintainer' %}{% url 'dashboard_maintainer' %}{% else %}{% url 'dashboard_receptionist' %}{% endif %}"
+           class="btn btn-secondary mt-3">Torna ai ticket</a>
+      </div>
+    </div>
+
+    <!-- Sezione cronologia a destra -->
+    <div class="col-md-4">
+      <div class="dashboard-card p-3">
+        <h5>Cronologia azioni</h5>
+        <ul class="timeline list-unstyled">
+          {% for h in history %}
+          <li class="mb-2">
+            <div class="small text-muted">{{ h.timestamp|date:"d/m/Y H:i" }}</div>
+            <div><strong>{{ h.author.username|default:"-" }}</strong> – {{ h.action }}</div>
+          </li>
+          {% empty %}
+          <li><em>Nessuna azione registrata.</em></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+{% block title %}Reception | Portale Manutenzione HH{% endblock %}
+{% block content %}
+<div class="dashboard-card p-4">
+    <h2 class="dashboard-title">Area Reception</h2>
+    <p>Puoi inviare una nuova richiesta di manutenzione e visualizzare lo stato delle richieste già inserite per il tuo resort.</p>
+    <a href="{% url 'ticket_create' %}" class="btn btn-primary mb-3">Nuova richiesta di manutenzione</a>
+    <h4 class="mt-4 mb-3">Le tue richieste recenti</h4>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Titolo</th>
+                    <th>Data</th>
+                    <th>Stato</th>
+                    <th>Assegnato a</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.title }}</td>
+                    <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <span class="badge
+                            {% if ticket.status == 'open' %}bg-warning
+                            {% elif ticket.status == 'in_progress' %}bg-info
+                            {% elif ticket.status == 'resolved' %}bg-success
+                            {% elif ticket.status == 'closed' %}bg-secondary
+                            {% endif %}">
+                            {{ ticket.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ ticket.assigned_to.username|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">Nessuna richiesta trovata.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'core/base.html' %}
+{% block title %}Manutentore | Portale Manutenzione HH{% endblock %}
+{% block content %}
+<div class="dashboard-card p-4">
+    <h2 class="dashboard-title">Area Manutentori</h2>
+    <p>Qui trovi tutte le richieste di manutenzione assegnate a te.</p>
+    <h4 class="mt-4 mb-3">Ticket assegnati</h4>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Titolo</th>
+                    <th>Resort</th>
+                    <th>Data</th>
+                    <th>Stato</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.title }}</td>
+                    <td>{{ ticket.resort.name }}</td>
+                    <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <span class="badge
+                            {% if ticket.status == 'open' %}bg-warning
+                            {% elif ticket.status == 'in_progress' %}bg-info
+                            {% elif ticket.status == 'resolved' %}bg-success
+                            {% elif ticket.status == 'closed' %}bg-secondary
+                            {% endif %}">
+                            {{ ticket.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-sm btn-outline-primary">Dettaglio</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">Nessun ticket assegnato.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
